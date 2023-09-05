@@ -1,0 +1,12 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+metadata:
+  name: rockbed
+profiles:
+  - name: local
+    manifests:
+      kustomize:
+        paths:
+          - manifests/base/devnet
+          - manifests/base/motion
+          - manifests/base/singularity
