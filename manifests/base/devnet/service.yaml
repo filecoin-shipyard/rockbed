@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: devnet
+spec:
+  selector:
+    app: lotus
+  ports:
+    - name: api
+      port: 1234
+      targetPort: 1234
+    - name: lotus-node-lp2p
+      port: 9090
+      targetPort: lotus-node-lp2p
+    - name: lotus-miner
+      port: 2345
+      targetPort: lotus-miner-api
+    - name: boost-graphql
+      port: 8080
+      targetPort: boost-graphql
+    - name: boost-metrics
+      port: 1288
+      targetPort: boost-metrics
+    - name: boost-lp2p
+      port: 50000
+      targetPort: boost-lp2p

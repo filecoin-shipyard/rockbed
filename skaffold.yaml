@@ -8,5 +8,4 @@ profiles:
       kustomize:
         paths:
           - manifests/base/devnet
-          - manifests/base/motion
-          - manifests/base/singularity
+          - manifests/base/motionlarity

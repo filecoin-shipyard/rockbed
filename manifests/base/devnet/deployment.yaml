@@ -23,9 +23,9 @@ spec:
                 name: lotus-env
           ports:
             - containerPort: 1234
-              name: api
+              name: lotus-node-api
             - containerPort: 9090
-              name: libp2p
+              name: lotus-node-lp2p
           volumeMounts:
             - mountPath: /init
               name: init
@@ -45,7 +45,7 @@ spec:
                 name: lotus-miner-env
           ports:
             - containerPort: 2345
-              name: api
+              name: lotus-miner-api
           volumeMounts:
             - mountPath: /init
               name: init
@@ -68,11 +68,11 @@ spec:
                 name: boost-env
           ports:
             - containerPort: 8080
-              name: graphql
+              name: boost-graphql
             - containerPort: 1288
-              name: metrics
+              name: boost-metrics
             - containerPort: 50000
-              name: libp2p
+              name: boost-lp2p
           volumeMounts:
             - mountPath: /init
               name: init

@@ -15,4 +15,4 @@ if [ ! -f $LOTUS_MINER_PATH/.init.miner ]; then
 fi
 
 echo Starting lotus miner ...
-exec lotus-miner run --nosync -miner-api=2345
+exec lotus-miner run --nosync

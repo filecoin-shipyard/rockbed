@@ -1,0 +1,148 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: motionlarity
+spec:
+  selector:
+    matchLabels:
+      app: motionlarity
+  template:
+    metadata:
+      labels:
+        app: motionlarity
+    spec:
+      containers:
+        - name: motion
+          image: motion
+          args:
+            - --lotus-test=true
+            - --experimentalSingularityStore
+            - --experimentalRemoteSingularityAPIUrl=http://motionlarity:9090
+            - --replicationFactor=1
+            - --pricePerGiBEpoch=0.000000000000002
+            - --storageProvider=t01000
+            - --singularityMaxCarSize=7MiB
+            - --singularityPackThreshold=4096
+            - --experimentalSingularityContentURLTemplate=http://motionlarity:7777/piece/{PIECE_CID}
+            - --experimentalSingularityScheduleCron=* * * * *
+            - --experimentalSingularityScheduleDealNumber=0
+            - --walletKey=
+            - --storeDir=/usr/src/app/storage
+          envFrom:
+            - configMapRef:
+                name: motion-env
+          ports:
+            - containerPort: 40080
+              name: motion-api
+          volumeMounts:
+            - mountPath: /usr/src/app/storage
+              name: motion
+        - name: singularity-api
+          image: singularity
+          args:
+            - run
+            - api
+            - --bind=0.0.0.0:9090
+          envFrom:
+            - secretRef:
+                name: singularity-db-creds
+            - configMapRef:
+                name: singularity-env
+          env:
+            - name: DATABASE_CONNECTION_STRING
+              value: "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@db:5432/$(POSTGRES_DB)"
+          ports:
+            - containerPort: 9090
+              name: singularity-api
+          volumeMounts:
+            - mountPath: /usr/src/app/storage
+              name: motion
+        - name: singularity-dataset-worker
+          image: singularity
+          args:
+            - run
+            - dataset-worker
+          envFrom:
+            - secretRef:
+                name: singularity-db-creds
+            - configMapRef:
+                name: singularity-env
+          env:
+            - name: DATABASE_CONNECTION_STRING
+              value: "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@db:5432/$(POSTGRES_DB)"
+          volumeMounts:
+            - mountPath: /usr/src/app/storage
+              name: motion
+        - name: singularity-deal-pusher
+          image: singularity
+          args:
+            - run
+            - deal-pusher
+          envFrom:
+            - secretRef:
+                name: singularity-db-creds
+            - configMapRef:
+                name: singularity-env
+          env:
+            - name: DATABASE_CONNECTION_STRING
+              value: "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@db:5432/$(POSTGRES_DB)"
+          volumeMounts:
+            - mountPath: /usr/src/app/storage
+              name: motion
+        - name: singularity-deal-tracker
+          image: singularity
+          args:
+            - run
+            - deal-tracker
+            - --market-deal-url=
+            - --interval=20s
+          envFrom:
+            - secretRef:
+                name: singularity-db-creds
+            - configMapRef:
+                name: singularity-env
+          env:
+            - name: DATABASE_CONNECTION_STRING
+              value: "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@db:5432/$(POSTGRES_DB)"
+          volumeMounts:
+            - mountPath: /usr/src/app/storage
+              name: motion
+        - name: singularity-content-provider
+          image: singularity
+          args:
+            - run
+            - content-provider
+            - --http-bind=0.0.0.0:7777
+          envFrom:
+            - secretRef:
+                name: singularity-db-creds
+            - configMapRef:
+                name: singularity-env
+          env:
+            - name: DATABASE_CONNECTION_STRING
+              value: "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@db:5432/$(POSTGRES_DB)"
+          ports:
+            - containerPort: 7777
+              name: singularity-cp
+          volumeMounts:
+            - mountPath: /usr/src/app/storage
+              name: motion
+      volumes:
+        - name: motion
+          persistentVolumeClaim:
+            claimName: motion
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: motionlarity
+spec:
+  selector:
+    app: motionlarity
+  ports:
+    - port: 9090
+      targetPort: singularity-api
+      name: sing-api
+    - port: 7777
+      targetPort: singularity-cp
+      name: sing-cp
