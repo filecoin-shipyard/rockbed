@@ -1,0 +1,52 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: masih
+
+resources:
+  - deployment.yaml
+  - pvc.yaml
+  - service.yaml
+
+configMapGenerator:
+  - name: lotus-env
+    literals:
+      - LOTUS_FEVM_ENABLEETHRPC=true
+      - LOTUS_API_LISTENADDRESS=/ip4/0.0.0.0/tcp/1234/http
+      - LOTUS_LIBP2P_LISTENADDRESSES=/ip4/0.0.0.0/tcp/9090
+      - SECTOR_SIZE='8388608'
+      - GENESIS_PATH=/var/lib/genesis
+      - LOTUS_SKIP_GENESIS_CHECK=_yes_
+  - name: lotus-miner-env
+    literals:
+      - LOTUS_API_LISTENADDRESS=/ip4/0.0.0.0/tcp/2345/http
+      - LOTUS_SEALING_BATCHPRECOMMITS=false
+      - LOTUS_SEALING_AGGREGATECOMMITS=false
+      - LOTUS_SUBSYSTEMS_ENABLEMARKETS=false
+      - LOTUS_SEALING_WAITDEALSDELAY=20s
+      - LOTUS_WAIT_API_TIMEOUT=60s
+      - GENESIS_PATH=/var/lib/genesis
+      - SECTOR_SIZE='8388608'
+  - name: boost-env
+    literals:
+      - LOTUS_API_LISTENADDRESS=/ip4/0.0.0.0/tcp/1288/http
+      - LOTUS_PATH=/var/lib/lotus
+      - BOOST_PATH=/var/lib/boost
+      - LOTUS_MINER_PATH=/var/lib/lotus-miner
+      - LOTUS_TRACING_ENABLED=true
+      - LOTUS_TRACING_SERVICENAME=boostd
+      - LOTUS_TRACING_ENDPOINT=http://tempo:14268/api/traces
+      - LOTUS_WAIT_API_TIMEOUT=60s
+  - name: lotus-init
+    files:
+      - init.sh
+      - miner-init.sh
+      - boost-init.sh
+
+images:
+  - name: lotus
+    newName: ghcr.io/filecoin-shipyard/lotus-containers
+    newTag: lotus-v1.23.2-devnet
+  - name: boost
+    newName: ghcr.io/filecoin-project/boost
+    newTag: boost-dev-a0509fa

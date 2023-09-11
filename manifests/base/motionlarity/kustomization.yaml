@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: masih
+
+resources:
+  - motionlarity.yaml
+  - pvc.yaml
+  - db.yaml
+
+configMapGenerator:
+  - name: motion-env
+    literals:
+      - LOTUS_TEST=true
+  - name: singularity-env
+    literals:
+      - LOTUS_TEST=true
+
+secretGenerator:
+  - name: singularity-db-creds
+    literals:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=singularity
+images:
+  - name: motion
+    newName: ghcr.io/filecoin-project/motion
+    newTag: main@sha256:5ebe74b469888d3b936b00e8698bf3c6daca4d94b6d062ad4f00192a8d4030ef
+  - name: singularity
+    newName: ghcr.io/data-preservation-programs/singularity
+    newTag: 0.3.2@sha256:3ec7ed6246102d84d0eb30818f6d9d6d4f48df1a51f565ad76caf7d80f82a230

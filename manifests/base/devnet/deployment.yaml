@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lotus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lotus
+  template:
+    metadata:
+      labels:
+        app: lotus
+    spec:
+      containers:
+        - name: lotus
+          image: lotus
+          command:
+            - sh
+            - /init/init.sh
+          envFrom:
+            - configMapRef:
+                name: lotus-env
+          ports:
+            - containerPort: 1234
+              name: lotus-node-api
+            - containerPort: 9090
+              name: lotus-node-lp2p
+          volumeMounts:
+            - mountPath: /init
+              name: init
+            - mountPath: /var/tmp/filecoin-proof-parameters
+              name: fil-proof-params
+            - mountPath: /var/lib/genesis
+              name: genesis
+            - mountPath: /var/lib/lotus
+              name: lotus
+        - name: lotus-miner
+          image: lotus
+          command:
+            - sh
+            - /init/miner-init.sh
+          envFrom:
+            - configMapRef:
+                name: lotus-miner-env
+          ports:
+            - containerPort: 2345
+              name: lotus-miner-api
+          volumeMounts:
+            - mountPath: /init
+              name: init
+            - mountPath: /var/tmp/filecoin-proof-parameters
+              name: fil-proof-params
+            - mountPath: /var/lib/genesis
+              name: genesis
+            - mountPath: /var/lib/lotus
+              name: lotus
+              readOnly: true
+            - mountPath: /var/lib/lotus-miner
+              name: lotus-miner
+        - name: boost
+          image: boost
+          command:
+            - sh
+            - /init/boost-init.sh
+          envFrom:
+            - configMapRef:
+                name: boost-env
+          ports:
+            - containerPort: 8080
+              name: boost-graphql
+            - containerPort: 1288
+              name: boost-metrics
+            - containerPort: 50000
+              name: boost-lp2p
+          volumeMounts:
+            - mountPath: /init
+              name: init
+            - mountPath: /var/tmp/filecoin-proof-parameters
+              name: fil-proof-params
+            - mountPath: /var/lib/boost
+              name: boost
+            - mountPath: /var/lib/lotus
+              name: lotus
+              readOnly: true
+            - mountPath: /var/lib/lotus-miner
+              name: lotus-miner
+              readOnly: true
+      volumes:
+        - name: init
+          configMap:
+            name: lotus-init
+        - name: fil-proof-params
+          persistentVolumeClaim:
+            claimName: fil-proof-params
+        - name: genesis
+          emptyDir: { }
+        - name: lotus
+          emptyDir: { }
+        - name: lotus-miner
+          emptyDir: { }
+        - name: boost
+          emptyDir: { }
+            
