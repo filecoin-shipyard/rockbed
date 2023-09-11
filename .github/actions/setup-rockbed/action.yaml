@@ -11,6 +11,5 @@ runs:
     - name: Checkout Rockbed ${{ inputs.version }}
       uses: actions/checkout@v3
       with:
-        repository: filecoin-project/lotus
-        ref: ${{ inputs.version }}
+        repository: filecoin-shipyard/rockbed
         path: ${{ env.RUNNER_TEMP }}/rockbed

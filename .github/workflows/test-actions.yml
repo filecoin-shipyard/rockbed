@@ -10,9 +10,7 @@ jobs:
     name: Actions
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/actions/setup-rockbed
-        with:
-          version: masih/gh-actions
+      - uses: filecoin-shipyard/rockbed/.github/actions/setup-rockbed@masih/gh-actions
       - name: Test checked out
         run: |
           ls -alh "${{ env.RUNNER_TEMP }}"
