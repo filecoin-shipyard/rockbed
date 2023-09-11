@@ -1,0 +1,16 @@
+name: Rockbed
+description: Setup Rockbed
+inputs:
+  version:
+    required: false
+    default: main
+    description: The version of Rockbed to setup
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout Rockbed ${{ inputs.version }}
+      uses: actions/checkout@v3
+      with:
+        repository: filecoin-project/lotus
+        ref: ${{ inputs.version }}
+        path: ${{ env.RUNNER_TEMP }}/rockbed

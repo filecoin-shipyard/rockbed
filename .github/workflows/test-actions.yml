@@ -1,0 +1,18 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Actions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/setup-rockbed
+        with:
+          version: masih/gh-actions
+      - name: Test checked out
+        run: |
+          ls -alh "${{ env.RUNNER_TEMP }}"
