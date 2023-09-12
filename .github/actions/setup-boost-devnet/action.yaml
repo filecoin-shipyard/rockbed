@@ -25,6 +25,7 @@ runs:
   using: "composite"
   steps:
     - name: Run Devnet
+      shell: bash
       run: |
         cd devnet
         docker compose up -d
