@@ -8,8 +8,8 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout Rockbed ${{ inputs.version }}
-      uses: actions/checkout@v3
-      with:
-        repository: filecoin-shipyard/rockbed
-        path: ${{ runner.temp }}/rockbed
+    - name: Run Devnet
+      shell: bash
+      run: |
+        pwd
+        ls -alh

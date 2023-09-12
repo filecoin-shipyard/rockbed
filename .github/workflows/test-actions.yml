@@ -14,3 +14,4 @@ jobs:
       - name: Test checked out
         run: |
           ls -alh "${{ runner.temp }}"
+          ls -alh "/tmp"
