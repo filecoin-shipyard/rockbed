@@ -26,6 +26,10 @@ runs:
   steps:
     - name: Run Devnet
       shell: bash
+      working-directory: /tmp
       run: |
-        cd devnet
+        git clone --depth 1 --branch masih/gh-actions https://github.com/filecoin-shipyard/rockbed.git
+        cd rockbed
+        git pull
+        cd deploy/docker-compose/f
         docker compose up -d
