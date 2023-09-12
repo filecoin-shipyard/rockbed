@@ -1,0 +1,33 @@
+name: Send Funds
+description: Send funds from one wallet to another
+inputs:
+  from:
+    required: false
+    description: The wallet address from which to send FIL. If unspecified, defaults to default lotus wallet
+  to:
+    required: true
+    description: The wallet address to which to send FIL.
+  amount:
+    required: true
+    description: The FIL amount to send.
+outputs:
+  message-cid:
+    description: The CID of the funds transfer message.
+    value: ${{ steps.send-funds.outputs.message-cid }}
+runs:
+  using: "composite"
+  steps:
+    # TODO: add debugging on failure in case this is used without setting up devnet to provide meaningful hints to the user on what they should do first: check well known paths, check docker compose state
+    - name: Send Funds
+      shell: bash
+      working-directory: /tmp/rockbed/deploy/docker-compose/devnet
+      id: send-funds
+      run: |
+        FROM_WALLET='${{ inputs.from }}'
+        if test -z "${FROM_WALLET}"
+        then
+          FROM_WALLET=`docker compose exec lotus lotus wallet default`
+        fi
+        
+        # Output message-cid
+        echo "message-cid=`docker compose exec lotus lotus send --from ${FROM_WALLET} ${{ inputs.to }} ${{ inputs.amount }}" >> $GITHUB_OUTPUT

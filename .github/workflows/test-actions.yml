@@ -23,3 +23,10 @@ jobs:
         run: |
           echo "wallet-address ->   ${{ steps.wallet.outputs.wallet-address }}"
           echo "wallet-key -> ${{ steps.wallet.outputs.wallet-key }}"
+      - uses: filecoin-shipyard/rockbed/.github/actions/send-funds@masih/gh-actions
+        id: funds
+        with:
+          to: ${{ steps.wallet.outputs.wallet-address }}
+      - name: Test wallet out
+        run: |
+          echo "message-cid ->   ${{ steps.funds.outputs.message-cid }}"
