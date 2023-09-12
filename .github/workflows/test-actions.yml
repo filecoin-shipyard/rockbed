@@ -10,8 +10,9 @@ jobs:
     name: Actions
     runs-on: ubuntu-latest
     steps:
-      - uses: filecoin-shipyard/rockbed/.github/actions/setup-rockbed@masih/gh-actions
+      - uses: filecoin-shipyard/rockbed/.github/actions/setup-boost-devnet@masih/gh-actions
       - name: Test checked out
         run: |
+          env
           ls -alh "${{ runner.temp }}"
           ls -alh "/tmp"

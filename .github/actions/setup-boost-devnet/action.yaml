@@ -1,0 +1,30 @@
+name: Boost Devnet
+description: Start up Boost Devnet
+inputs:
+  name:
+    required: true
+    type: string
+  target:
+    required: false
+    type: string
+  file:
+    required: false
+    type: string
+  context:
+    required: false
+    type: string
+    default: '.'
+  build-args:
+    required: false
+    type: string
+  push:
+    required: false
+    type: boolean
+    default: false
+runs:
+  using: "composite"
+  steps:
+    - name: Run Devnet
+      run: |
+        cd devnet
+        docker compose up -d
