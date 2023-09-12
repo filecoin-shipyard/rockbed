@@ -13,4 +13,4 @@ jobs:
       - uses: filecoin-shipyard/rockbed/.github/actions/setup-rockbed@masih/gh-actions
       - name: Test checked out
         run: |
-          ls -alh "${{ env.RUNNER_TEMP }}"
+          ls -alh "${{ runner.temp }}"

@@ -12,4 +12,4 @@ runs:
       uses: actions/checkout@v3
       with:
         repository: filecoin-shipyard/rockbed
-        path: ${{ env.RUNNER_TEMP }}/rockbed
+        path: ${{ runner.temp }}/rockbed
