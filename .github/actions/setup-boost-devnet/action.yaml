@@ -43,8 +43,8 @@ runs:
           ${{ runner.os }}-
     - name: Set up Rockbed
       shell: bash
-      working-directory: /tmp/rockbed
-      run: git clone --depth 1 --branch ${{ inputs.rockbed-version }} https://github.com/filecoin-shipyard/rockbed.git .
+      working-directory: /tmp
+      run: git clone --depth 1 --branch ${{ inputs.rockbed-version }} https://github.com/filecoin-shipyard/rockbed.git
     - name: Start up Boost Devnet
       shell: bash
       working-directory: /tmp/rockbed/deploy/docker-compose/devnet
