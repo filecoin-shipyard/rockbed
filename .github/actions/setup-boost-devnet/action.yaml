@@ -32,4 +32,6 @@ runs:
         cd rockbed
         git pull
         cd deploy/docker-compose/
+        pwd
+        ls -alh
         docker compose up -d
