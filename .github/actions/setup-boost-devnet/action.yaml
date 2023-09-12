@@ -27,6 +27,12 @@ outputs:
   lotus-wallet-default:
     description: Lotus full node default wallet address
     value: ${{ steps.prepare-outputs.outputs.lotus-wallet-default }}
+  lotus-miner-api-token:
+    description: Lotus miner API token
+    value: ${{ steps.prepare-outputs.outputs.lotus-miner-api-token }}
+  lotus-miner-api-endpoint:
+    description: Lotus miner API endpoint
+    value: ${{ steps.prepare-outputs.outputs.lotus-miner-api-endpoint }}
 runs:
   using: "composite"
   steps:
@@ -73,3 +79,11 @@ runs:
         # Output lotus-wallet-default
         export `docker compose exec lotus lotus auth api-info --perm=admin`
         echo "lotus-wallet-default=`docker compose exec lotus lotus wallet default`" >> $GITHUB_OUTPUT
+        
+        # Output lotus-miner-api-endpoint
+        echo "lotus-miner-api-endpoint=http://localhost:2345/rpc/v1" >> $GITHUB_OUTPUT
+        
+        # Output lotus-miner-api-token
+        export `docker compose exec lotus lotus-miner auth api-info --perm=admin`
+        IFS=: read -r token path <<< "${MINER_API_INFO}"
+        echo "lotus-miner-api-token=${token}" >> $GITHUB_OUTPUT

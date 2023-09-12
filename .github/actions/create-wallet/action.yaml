@@ -1,0 +1,30 @@
+name: Create Wallet
+description: Create a new wallet
+inputs:
+  key-type:
+    required: false
+    description: The type of wallet key
+    default: 'bls'
+outputs:
+  wallet-address:
+    description: The newly created wallet address
+    value: ${{ steps.create-wallet.outputs.wallet-address }}
+  wallet-key:
+    description: The new wallet private key in hex format
+    value: ${{ steps.create-wallet.outputs.wallet-key }}
+runs:
+  using: "composite"
+  steps:
+    # TODO: add debugging on failure in case this is used without setting up devnet to provide meaningful hints to the user on what they should do first: check well known paths, check docker compose state
+    - name: Create Wallet
+      shell: bash
+      working-directory: /tmp/rockbed/deploy/docker-compose/devnet
+      id: create-wallet
+      run: |
+        WALLET_ADDRESS=`docker compose exec lotus lotus wallet new ${{ inputs.key-type }}`
+        
+        # Output wallet-address
+        echo "wallet-address=${WALLET_ADDRESS}" >> $GITHUB_OUTPUT
+        
+        # Output wallet-key
+        echo "wallet-key=`docker compose exec lotus lotus wallet export ${WALLET_ADDRESS}`" >> $GITHUB_OUTPUT

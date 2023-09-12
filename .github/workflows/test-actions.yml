@@ -17,3 +17,9 @@ jobs:
           echo "lotus-api-token ->      ${{ steps.devnet.outputs.lotus-api-token }}"
           echo "lotus-api-endpoint ->   ${{ steps.devnet.outputs.lotus-api-endpoint }}"
           echo "lotus-wallet-default -> ${{ steps.devnet.outputs.lotus-wallet-default }}"
+      - uses: filecoin-shipyard/rockbed/.github/actions/create-wallet@masih/gh-actions
+        id: wallet
+      - name: Test wallet out
+        run: |
+          echo "wallet-address ->   ${{ steps.wallet.outputs.wallet-address }}"
+          echo "wallet-key -> ${{ steps.wallet.outputs.wallet-key }}"
