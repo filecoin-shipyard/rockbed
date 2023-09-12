@@ -31,7 +31,5 @@ runs:
         git clone --depth 1 --branch masih/gh-actions https://github.com/filecoin-shipyard/rockbed.git
         cd rockbed
         git pull
-        cd deploy/docker-compose/
-        pwd
-        ls -alh
+        cd deploy/docker-compose/devnet
         docker compose up -d
