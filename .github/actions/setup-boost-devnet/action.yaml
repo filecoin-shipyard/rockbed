@@ -63,6 +63,12 @@ runs:
       working-directory: /tmp/rockbed/deploy/docker-compose/devnet
       run: |
         docker compose exec lotus lotus wait-api --timeout=${{ inputs.lotus-wait-api-timeout }}
+    - name: Dump logs for debugging
+      if: failure()
+      shell: bash
+      working-directory: /tmp/rockbed/deploy/docker-compose/devnet
+      run: |
+        docker compose logs lotus
     - name: Prepare outputs
       shell: bash
       working-directory: /tmp/rockbed/deploy/docker-compose/devnet
