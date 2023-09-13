@@ -29,7 +29,5 @@ runs:
           FROM_WALLET=`docker compose exec lotus lotus wallet default`
         fi
         
-        echo "${FROM_WALLET}"
-        
         # Output message-cid
-        echo "message-cid=`docker compose exec lotus lotus send --from ${FROM_WALLET} ${{ inputs.to }} ${{ inputs.amount }}" >> $GITHUB_OUTPUT
+        echo "message-cid=`docker compose exec lotus lotus send --from ${FROM_WALLET} ${{ inputs.to }} ${{ inputs.amount }}`" >> $GITHUB_OUTPUT
