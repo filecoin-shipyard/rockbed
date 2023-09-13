@@ -1,0 +1,95 @@
+name: Boost Devnet
+description: Start up Boost Devnet
+inputs:
+  lotus-wait-api-timeout:
+    required: false
+    type: string
+    default: 10m
+  lotus-version:
+    required: false
+    type: string
+    default: v1.23.2
+  boost-version:
+    required: false
+    type: string
+    default: a0509fa # TODO: have boost publish all in one image tagged with version
+  rockbed-version:
+    required: false
+    default: masih/gh-actions # TODO: update to main
+
+outputs:
+  lotus-api-token:
+    description: Lotus full node API token
+    value: ${{ steps.prepare-outputs.outputs.lotus-api-token }}
+  lotus-api-endpoint:
+    description: Lotus full node API endpoint
+    value: ${{ steps.prepare-outputs.outputs.lotus-api-endpoint }}
+  lotus-wallet-default:
+    description: Lotus full node default wallet address
+    value: ${{ steps.prepare-outputs.outputs.lotus-wallet-default }}
+  lotus-miner-api-token:
+    description: Lotus miner API token
+    value: ${{ steps.prepare-outputs.outputs.lotus-miner-api-token }}
+  lotus-miner-api-endpoint:
+    description: Lotus miner API endpoint
+    value: ${{ steps.prepare-outputs.outputs.lotus-miner-api-endpoint }}
+runs:
+  using: "composite"
+  steps:
+    - name: Cache Filecoin Proof Parameters
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-fil-proof-params
+      with:
+        path: /tmp/rockbed/deploy/docker-compose/devnet/data/proofs
+        key: ${{ runner.os }}-build-${{ env.cache-name }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+    - name: Set up Rockbed
+      shell: bash
+      working-directory: /tmp
+      run: git clone --depth 1 --branch ${{ inputs.rockbed-version }} https://github.com/filecoin-shipyard/rockbed.git
+    - name: Start up Boost Devnet
+      shell: bash
+      working-directory: /tmp/rockbed/deploy/docker-compose/devnet
+      env:
+        LOTUS_VERSION: ${{ inputs.lotus-version }}
+        BOOST_VERSION: ${{ inputs.boost-version }}
+      run: docker compose up -d
+    - name: Await Lotus full node startup
+      shell: bash
+      working-directory: /tmp/rockbed/deploy/docker-compose/devnet
+      run: |
+        docker compose exec lotus lotus wait-api --timeout=${{ inputs.lotus-wait-api-timeout }}
+    - name: Dump logs for debugging
+      if: failure()
+      shell: bash
+      working-directory: /tmp/rockbed/deploy/docker-compose/devnet
+      run: |
+        docker compose logs lotus
+    - name: Prepare outputs
+      shell: bash
+      working-directory: /tmp/rockbed/deploy/docker-compose/devnet
+      id: prepare-outputs
+      run: |
+        # Output lotus-api-endpoint
+        echo "lotus-api-endpoint=http://localhost:1234/rpc/v1" >> $GITHUB_OUTPUT
+        
+        # Output lotus-api-token
+        export `docker compose exec lotus lotus auth api-info --perm=admin`
+        IFS=: read -r token path <<< "${FULLNODE_API_INFO}"
+        echo "lotus-api-token=${token}" >> $GITHUB_OUTPUT
+        
+        # Output lotus-wallet-default
+        export `docker compose exec lotus lotus auth api-info --perm=admin`
+        echo "lotus-wallet-default=`docker compose exec lotus lotus wallet default`" >> $GITHUB_OUTPUT
+        
+        # Output lotus-miner-api-endpoint
+        echo "lotus-miner-api-endpoint=http://localhost:2345/rpc/v1" >> $GITHUB_OUTPUT
+        
+        # Output lotus-miner-api-token
+        export `docker compose exec lotus lotus-miner auth api-info --perm=admin`
+        IFS=: read -r token path <<< "${MINER_API_INFO}"
+        echo "lotus-miner-api-token=${token}" >> $GITHUB_OUTPUT
